@@ -1,0 +1,51 @@
+# Miscellaneous
+*.class
+*.lock
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.carryforward
+.idea
+.project
+.settings
+.tmPreferences.plist
+.vscode/
+
+# Flutter/Dart packages
+.dart_tool/
+.packages
+build/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Generated.xcconfig
+ios/Flutter/engine.version
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/podbin.stamp
+ios/Flutter/app.flx
+ios/Flutter/app
+ios/Runner/GeneratedPluginRegistrant.*
+android/app/build/
+android/.gradle/
+android/gradle/wrapper/gradle-wrapper.jar
+android/local.properties
+*.iml
+*.metadata
+
+# Flutter web
+web/
+!web/index.html
+!web/favicon.png
+!web/icons/
+
+# Fonts (eğer assets/fonts/ içinde özel fontlarınız varsa ve bunları depoya eklemek istemiyorsanız)
+# Ancak genellikle fontlar projeye dahil edilir.
+# assets/fonts/
+
+# Secrets and sensitive files - KENDİ GİZLİ DOSYALARINIZI BURAYA EKLEYİN
+# secrets.json
+# .env
