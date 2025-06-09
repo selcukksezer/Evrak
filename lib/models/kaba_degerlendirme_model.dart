@@ -2,16 +2,15 @@
 
 import 'package:flutter/material.dart';
 
-// Değerlendirmenin kendisini temsil eden model (KDA)
 class KD_KisaDonemliAmacModel {
   String id;
   String kazanimMetni;
-  bool basariliMi; // true = Evet (başarılı), false = Hayır (başarısız)
+  bool basariliMi;
 
   KD_KisaDonemliAmacModel({
     required this.id,
     required this.kazanimMetni,
-    this.basariliMi = false, // Varsayılan olarak "Hayır" (başarısız) seçili
+    this.basariliMi = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -28,7 +27,6 @@ class KD_KisaDonemliAmacModel {
       );
 }
 
-// UDA Modeli
 class KD_UzunDonemliAmacModel {
   String id;
   String kazanimMetni;
@@ -37,8 +35,8 @@ class KD_UzunDonemliAmacModel {
   KD_UzunDonemliAmacModel({
     required this.id,
     required this.kazanimMetni,
-    this.kisaDonemliAmaclar = const [],
-  });
+    List<KD_KisaDonemliAmacModel>? kisaDonemliAmaclar,
+  }) : this.kisaDonemliAmaclar = kisaDonemliAmaclar ?? [];
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -56,45 +54,58 @@ class KD_UzunDonemliAmacModel {
       );
 }
 
-// Seçilen Dersleri ve içindeki değerlendirmeleri tutan model
 class KabaDegerlendirmeDersModel {
-  String id; // Model içindeki benzersiz ID
+  String id;
   String dersAdi;
-  String dersFirestoreId; // Firebase'deki ders dokümanının ID'si
+  String dersFirestoreId;
+  int kademe; // YENİ EKLENDİ
   List<KD_UzunDonemliAmacModel> uzunDonemliAmaclar;
 
   KabaDegerlendirmeDersModel({
     required this.id,
     required this.dersAdi,
     required this.dersFirestoreId,
-    this.uzunDonemliAmaclar = const [],
-  });
+    required this.kademe, // YENİ EKLENDİ
+    List<KD_UzunDonemliAmacModel>? uzunDonemliAmaclar,
+  }) : this.uzunDonemliAmaclar = uzunDonemliAmaclar ?? [];
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'dersAdi': dersAdi,
-    'dersFirestoreId': dersFirestoreId,
-    'uzunDonemliAmaclar': uzunDonemliAmaclar.map((uda) => uda.toJson()).toList(),
-  };
+        'id': id,
+        'dersAdi': dersAdi,
+        'dersFirestoreId': dersFirestoreId,
+        'kademe': kademe, // YENİ EKLENDİ
+        'uzunDonemliAmaclar':
+            uzunDonemliAmaclar.map((uda) => uda.toJson()).toList(),
+      };
 
-  factory KabaDegerlendirmeDersModel.fromJson(Map<String, dynamic> json) =>
-      KabaDegerlendirmeDersModel(
-        id: json['id'],
-        dersAdi: json['dersAdi'],
-        dersFirestoreId: json['dersFirestoreId'],
-        uzunDonemliAmaclar: (json['uzunDonemliAmaclar'] as List<dynamic>? ?? [])
-            .map((udaJson) => KD_UzunDonemliAmacModel.fromJson(udaJson))
-            .toList(),
-      );
+  factory KabaDegerlendirmeDersModel.fromJson(Map<String, dynamic> json) {
+    int parsedKademe;
+    final kademeValue = json['kademe']; // Değeri al
+    if (kademeValue is int) {
+      parsedKademe = kademeValue;
+    } else {
+      // Eğer int değilse veya null ise varsayılan olarak 1 ata
+      parsedKademe = 1;
+    }
+
+    return KabaDegerlendirmeDersModel(
+      id: json['id'] as String,
+      dersAdi: json['dersAdi'] as String,
+      dersFirestoreId: json['dersFirestoreId'] as String,
+      kademe: parsedKademe, // Güvenli bir şekilde atanmış kademe
+      uzunDonemliAmaclar: (json['uzunDonemliAmaclar'] as List<dynamic>? ?? [])
+          .map((udaJson) => KD_UzunDonemliAmacModel.fromJson(udaJson as Map<String, dynamic>))
+          .toList(),
+    );
+  }
 }
 
-// Tüm bir öğrenci formunu temsil eden ana model
 class KabaDegerlendirmeOgrenciModel {
   String id;
   String okulAdi;
   String ogrenciAdi;
   String uygulayiciAdi;
-  int kademe; // 1, 2, veya 3
+  int kademe;
   DateTime uygulamaTarihi;
   List<KabaDegerlendirmeDersModel> secilenDersler;
 
@@ -105,8 +116,8 @@ class KabaDegerlendirmeOgrenciModel {
     this.uygulayiciAdi = '',
     this.kademe = 1,
     required this.uygulamaTarihi,
-    this.secilenDersler = const [],
-  });
+    List<KabaDegerlendirmeDersModel>? secilenDersler,
+  }) : this.secilenDersler = secilenDersler ?? [];
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -119,15 +130,24 @@ class KabaDegerlendirmeOgrenciModel {
   };
 
   factory KabaDegerlendirmeOgrenciModel.fromJson(Map<String, dynamic> json) {
+    int studentParsedKademe;
+    final studentKademeValue = json['kademe']; // Değeri al
+    if (studentKademeValue is int) {
+      studentParsedKademe = studentKademeValue;
+    } else {
+      // Eğer int değilse veya null ise varsayılan olarak 1 ata
+      studentParsedKademe = 1;
+    }
+
     return KabaDegerlendirmeOgrenciModel(
-      id: json['id'],
-      okulAdi: json['okulAdi'] ?? '',
-      ogrenciAdi: json['ogrenciAdi'] ?? '',
-      uygulayiciAdi: json['uygulayiciAdi'] ?? '',
-      kademe: json['kademe'] ?? 1,
-      uygulamaTarihi: DateTime.parse(json['uygulamaTarihi']),
+      id: json['id'] as String,
+      okulAdi: json['okulAdi'] as String? ?? '',
+      ogrenciAdi: json['ogrenciAdi'] as String? ?? '',
+      uygulayiciAdi: json['uygulayiciAdi'] as String? ?? '',
+      kademe: studentParsedKademe, // Güvenli bir şekilde atanmış kademe
+      uygulamaTarihi: DateTime.parse(json['uygulamaTarihi'] as String),
       secilenDersler: (json['secilenDersler'] as List<dynamic>? ?? [])
-          .map((dersJson) => KabaDegerlendirmeDersModel.fromJson(dersJson))
+          .map((dersJson) => KabaDegerlendirmeDersModel.fromJson(dersJson as Map<String, dynamic>))
           .toList(),
     );
   }

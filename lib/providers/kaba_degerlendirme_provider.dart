@@ -21,7 +21,6 @@ class KabaDegerlendirmeProvider with ChangeNotifier {
     yerelDepodanYukle();
   }
 
-  // YENİ ÖĞRENCİ EKLEME/DÜZENLEME İŞLEMLERİ
   void yeniOgrenciBaslat() {
     String yeniId = DateTime.now().millisecondsSinceEpoch.toString();
     _aktifOgrenci = KabaDegerlendirmeOgrenciModel(id: yeniId, uygulamaTarihi: DateTime.now());
@@ -31,11 +30,9 @@ class KabaDegerlendirmeProvider with ChangeNotifier {
   void duzenlemekIcinOgrenciSec(String ogrenciId) {
     try {
       final orjinalOgrenci = _ogrenciler.firstWhere((o) => o.id == ogrenciId);
-      // Düzenleme sırasında orijinal veriyi bozmamak için bir kopya oluşturuyoruz.
       _aktifOgrenci = KabaDegerlendirmeOgrenciModel.fromJson(orjinalOgrenci.toJson());
       notifyListeners();
     } catch (e) {
-      print("Öğrenci bulunamadı: $e");
       _aktifOgrenci = null;
       notifyListeners();
     }
@@ -49,14 +46,14 @@ class KabaDegerlendirmeProvider with ChangeNotifier {
   Future<void> kaydetVeyaGuncelle() async {
     if (_aktifOgrenci == null) return;
 
-    int index = _ogrenciler.indexWhere((o) => o.id == _aktifOgrenci!.id);
+    final index = _ogrenciler.indexWhere((o) => o.id == _aktifOgrenci!.id);
     if (index != -1) {
       _ogrenciler[index] = _aktifOgrenci!;
     } else {
       _ogrenciler.add(_aktifOgrenci!);
     }
     await _ogrencileriLokalKaydet();
-    aktifOgrenciyiTemizle(); // İşlem bitince aktif öğrenciyi temizle
+    aktifOgrenciyiTemizle();
   }
 
   Future<void> ogrenciSil(String ogrenciId) async {
@@ -65,7 +62,6 @@ class KabaDegerlendirmeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // FIREBASE İŞLEMLERİ
   Future<List<Map<String, String>>> fetchDersler(int kademe) async {
     try {
       final snapshot = await _firestore
@@ -78,19 +74,19 @@ class KabaDegerlendirmeProvider with ChangeNotifier {
 
       return snapshot.docs.map((doc) => {
         'id': doc.id,
-        'dersAdi': doc.data()['dersAdi'] as String? ?? 'İsimsiz Ders',
+        'dersAdi': doc.data()['dersAdi'] as String? ?? 'Isimsiz Ders', // Düzeltildi
       }).toList();
     } catch (e) {
-      print("$kademe. kademe için dersler çekilirken hata: $e");
-      throw Exception("Dersler yüklenemedi.");
+      throw Exception("Dersler yuklenemedi.");
     }
   }
 
-  Future<KabaDegerlendirmeDersModel> fetchKazanımlar(int kademe, String dersId, String dersAdi) async {
+  Future<KabaDegerlendirmeDersModel> fetchKazanimlar(int kademe, String dersId, String dersAdi) async {
     final dersModel = KabaDegerlendirmeDersModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: UniqueKey().toString(),
         dersAdi: dersAdi,
         dersFirestoreId: dersId,
+        kademe: kademe, // YENİ: kademe bilgisi burada atanıyor
         uzunDonemliAmaclar: []
     );
 
@@ -128,7 +124,6 @@ class KabaDegerlendirmeProvider with ChangeNotifier {
     return dersModel;
   }
 
-  // LOKAL DEPO İŞLEMLERİ (Shared Preferences)
   Future<void> _ogrencileriLokalKaydet() async {
     final prefs = await SharedPreferences.getInstance();
     List<String> ogrencilerJson = _ogrenciler.map((o) => jsonEncode(o.toJson())).toList();
@@ -147,7 +142,6 @@ class KabaDegerlendirmeProvider with ChangeNotifier {
             .toList();
       }
     } catch (e) {
-      print("Kaba Değerlendirme verileri yüklenirken hata: $e");
       _ogrenciler = [];
     }
     _isLoading = false;

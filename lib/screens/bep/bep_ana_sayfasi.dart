@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:evrakapp/screens/bep/bep_dosyasi_ogrenciler_sayfasi.dart';
 import 'package:evrakapp/screens/bep_plan_hazirla/bep_plan_hazirla_sayfasi.dart'; // Yeni eklediğimiz sayfa
-import 'kaba_degerlendirme/kaba_degerlendirme_ogrenci_listesi.dart';
+import '../kaba_degerlendirme/kaba_degerlendirme_ogrenci_listesi.dart';
 
 class BepAnaSayfasi extends StatelessWidget {
   const BepAnaSayfasi({Key? key}) : super(key: key);

@@ -11,6 +11,7 @@ import 'package:evrakapp/data/evrak_data_provider.dart'; // DataProvider importu
 import 'firebase_options.dart'; // Firebase yapılandırma dosyanız (flutterfire configure ile oluşur)
 import 'package:evrakapp/utils/app_constants.dart'; // AppStrings gibi sabitler için (eğer varsa)
 import 'package:intl/date_symbol_data_local.dart'; // initializeDateFormatting için import
+import 'package:evrakapp/providers/kaba_degerlendirme_provider.dart';
 
 
 void main() async {

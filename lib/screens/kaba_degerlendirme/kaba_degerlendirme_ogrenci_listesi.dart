@@ -10,11 +10,8 @@ class KabaDegerlendirmeOgrenciListesiSayfasi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<KabaDegerlendirmeProvider>();
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Kaba Değerlendirme Formları"),
-      ),
+      appBar: AppBar(title: const Text("Kaba Değerlendirme Öğrencileri")),
       body: Column(
         children: [
           Padding(
@@ -29,9 +26,6 @@ class KabaDegerlendirmeOgrenciListesiSayfasi extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const KabaDegerlendirmeFormSayfasi()),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-              ),
             ),
           ),
           const Divider(),
@@ -45,31 +39,11 @@ class KabaDegerlendirmeOgrenciListesiSayfasi extends StatelessWidget {
               itemBuilder: (context, index) {
                 final ogrenci = provider.ogrenciler[index];
                 return ListTile(
-                  leading: CircleAvatar(child: Text(ogrenci.ogrenciAdi.isNotEmpty ? ogrenci.ogrenciAdi[0] : 'O')),
                   title: Text(ogrenci.ogrenciAdi.isNotEmpty ? ogrenci.ogrenciAdi : "İsimsiz Kayıt"),
                   subtitle: Text(ogrenci.okulAdi),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      // Silme onayı
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text("Silmeyi Onayla"),
-                          content: Text("'${ogrenci.ogrenciAdi}' kaydını silmek istediğinizden emin misiniz?"),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text("İptal")),
-                            TextButton(
-                              onPressed: () {
-                                provider.ogrenciSil(ogrenci.id);
-                                Navigator.of(ctx).pop();
-                              },
-                              child: const Text("Sil", style: TextStyle(color: Colors.red)),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                    onPressed: () => provider.ogrenciSil(ogrenci.id),
                   ),
                   onTap: () {
                     provider.duzenlemekIcinOgrenciSec(ogrenci.id);

@@ -2,7 +2,7 @@
 import json
 import io
 import datetime
-from firebase_functions import https_fn
+from firebase_functions import https_fn, options
 from docx import Document
 from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -165,7 +165,7 @@ def create_bep_table_only(document, data):
                 plan_table.cell(first_kda_row_for_this_uda_idx, 0).vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
 # --- ANA CLOUD FUNCTION ---
-@https_fn.on_request()
+@https_fn.on_request(memory=options.MemoryOption.MB_256, timeout_sec=120)
 def generate_bep_plan_table_only(req: https_fn.Request) -> https_fn.Response:
     """Flutter'dan gelen BEP Planı verileriyle SADECE BEP PLAN TABLOSUNU içeren Word belgesi oluşturur."""
     try:

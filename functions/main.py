@@ -2,7 +2,7 @@
 import json
 import io
 import datetime
-from firebase_functions import https_fn
+from firebase_functions import https_fn, options # options importunun varlığından emin olun
 from firebase_admin import initialize_app
 from docx import Document
 from docx.shared import Pt, Inches, RGBColor
@@ -15,6 +15,7 @@ from docx.oxml import parse_xml
 
 # YENİ: Diğer dosyadan fonksiyonu içe aktar
 from bep_plan_table_generator import generate_bep_plan_table_only # GÖRECELİ IMPORT DÜZELTİLDİ
+from kaba_degerlendirme_word_generator import generate_kaba_degerlendirme_docx # YENİ KABA DEĞERLENDİRME İÇİN IMPORT
 
 initialize_app()
 
@@ -64,7 +65,7 @@ def create_cover_page(document, data):
 
     p_title = document.add_paragraph()
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_title.add_run('BİREYSELLEŞTİRİLMİŞ EĞİTİM PROGRAMI DOSYASI').bold = True
+    p_title.add_run('B��REYSELLEŞTİRİLMİŞ EĞİTİM PROGRAMI DOSYASI').bold = True
     document.add_paragraph()
 
     table = document.add_table(rows=1, cols=1) # Sadece başlık
@@ -307,7 +308,7 @@ def create_members_table(document, data):
 
 
 # --- ANA CLOUD FUNCTION (GÜNCELLENDİ) ---
-@https_fn.on_request()
+@https_fn.on_request() # generate_bep_docx için memory ayarı yoksa varsayılan kullanılır
 def generate_bep_docx(req: https_fn.Request) -> https_fn.Response:
     """Flutter'dan gelen BEP Plan�� verileriyle Word belgesi oluşturur."""
     try:
@@ -363,3 +364,38 @@ def generate_bep_docx(req: https_fn.Request) -> https_fn.Response:
     except Exception as e:
         print(f"Hata oluştu: {e}")
         return https_fn.Response(json.dumps({"error": f"Sunucuda bir hata oluştu: {str(e)}"}), status=500, mimetype="application/json")
+
+# YENİ: KABA DEĞERLENDİRME FORMU OLUŞTURMA HTTP FONKSİYONU
+@https_fn.on_request(timeout_sec=300, memory=options.MemoryOption.MB_512) # DEĞİŞİKLİK: options.MemoryOption kullanıldı
+def create_kaba_degerlendirme_word_http(req: https_fn.Request) -> https_fn.Response:
+    try:
+        # Flutter'dan gelen JSON verisini al
+        data = req.get_json(silent=True)
+        if not data:
+            return https_fn.Response("Hatalı istek: JSON verisi bulunamadı.", status=400)
+
+        # Kurum adı gibi Flutter'dan gelmesi beklenen ama Python'da varsayılanı olan alanlar için kontrol
+        if 'kurum_adi' not in data or not data['kurum_adi']:
+            data['kurum_adi'] = "Kurum Adı Belirtilmedi (Flutter)" # Flutter'dan gelmezse varsayılan
+
+        # Word belgesini oluştur
+        doc_bytes_io = generate_kaba_degerlendirme_docx(data)
+
+        return https_fn.Response(
+            doc_bytes_io.getvalue(),
+            status=200,
+            headers={
+                "Content-Disposition": "attachment; filename=kaba_degerlendirme_formu.docx",
+                "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            }
+        )
+    except Exception as e:
+        print(f"Kaba Değerlendirme Word oluşturulurken hata oluştu: {e}")
+        # İstemciye daha anlamlı bir hata mesajı göndermek için
+        error_message = str(e)
+        # Geliştirme aşamasında detaylı hata, canlıda daha genel bir mesaj olabilir
+        return https_fn.Response(f"Sunucu hatası: Belge oluşturulamadı. Detay: {error_message}", status=500)
+
+
+# ... (varsa diğer fonksiyonlarınız) ...
+
