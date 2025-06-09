@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:evrakapp/screens/bep/bep_dosyasi_ogrenciler_sayfasi.dart';
 import 'package:evrakapp/screens/bep_plan_hazirla/bep_plan_hazirla_sayfasi.dart'; // Yeni eklediğimiz sayfa
+import 'kaba_degerlendirme/kaba_degerlendirme_ogrenci_listesi.dart';
 
 class BepAnaSayfasi extends StatelessWidget {
   const BepAnaSayfasi({Key? key}) : super(key: key);
@@ -41,14 +42,16 @@ class BepAnaSayfasi extends StatelessWidget {
           const SizedBox(height: 16),
           _buildBepSecenekKarti(
             context,
-            title: "Kaba Değerlendirme Formu Hazırla (Yakında)",
-            icon: Icons.checklist_rtl_outlined,
+            title: "Kaba Değerlendirme Formu Hazırla", // "(Yakında)" yazısını kaldırın
+            icon: Icons.rule_folder_outlined, // İkonu değiştirebilirsiniz
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Bu özellik yakında eklenecektir.")),
+              // Yeni oluşturacağımız öğrenci listesi sayfasına yönlendirme
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const KabaDegerlendirmeOgrenciListesiSayfasi()),
               );
             },
-            enabled: false,
+            enabled: true, // Kartı aktif hale getirin
           ),
         ],
       ),

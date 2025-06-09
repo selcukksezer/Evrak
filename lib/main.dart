@@ -40,6 +40,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => EvrakDataProvider()),
         ChangeNotifierProvider(create: (context) => BepFormProvider()),
+        ChangeNotifierProvider(create: (context) => KabaDegerlendirmeProvider()),
       ],
       child: const EvrakYonetApp(),
     ),

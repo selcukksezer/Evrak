@@ -1,0 +1,89 @@
+// lib/screens/kaba_degerlendirme/kaba_degerlendirme_ogrenci_listesi.dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/kaba_degerlendirme_provider.dart';
+import 'kaba_degerlendirme_form_sayfasi.dart';
+
+class KabaDegerlendirmeOgrenciListesiSayfasi extends StatelessWidget {
+  const KabaDegerlendirmeOgrenciListesiSayfasi({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<KabaDegerlendirmeProvider>();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Kaba Değerlendirme Formları"),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton.icon(
+              icon: const Icon(Icons.add),
+              label: const Text("Yeni Öğrenci Ekle"),
+              onPressed: () {
+                provider.yeniOgrenciBaslat();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const KabaDegerlendirmeFormSayfasi()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 50),
+              ),
+            ),
+          ),
+          const Divider(),
+          Expanded(
+            child: provider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : provider.ogrenciler.isEmpty
+                ? const Center(child: Text("Henüz kayıtlı öğrenci yok."))
+                : ListView.builder(
+              itemCount: provider.ogrenciler.length,
+              itemBuilder: (context, index) {
+                final ogrenci = provider.ogrenciler[index];
+                return ListTile(
+                  leading: CircleAvatar(child: Text(ogrenci.ogrenciAdi.isNotEmpty ? ogrenci.ogrenciAdi[0] : 'O')),
+                  title: Text(ogrenci.ogrenciAdi.isNotEmpty ? ogrenci.ogrenciAdi : "İsimsiz Kayıt"),
+                  subtitle: Text(ogrenci.okulAdi),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
+                      // Silme onayı
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text("Silmeyi Onayla"),
+                          content: Text("'${ogrenci.ogrenciAdi}' kaydını silmek istediğinizden emin misiniz?"),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text("İptal")),
+                            TextButton(
+                              onPressed: () {
+                                provider.ogrenciSil(ogrenci.id);
+                                Navigator.of(ctx).pop();
+                              },
+                              child: const Text("Sil", style: TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  onTap: () {
+                    provider.duzenlemekIcinOgrenciSec(ogrenci.id);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const KabaDegerlendirmeFormSayfasi()),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

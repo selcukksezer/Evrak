@@ -34,6 +34,9 @@ android/app/build/
 android/.gradle/
 android/gradle/wrapper/gradle-wrapper.jar
 android/local.properties
+lib/firebase_options.dart
+android/app/google-services.json
+
 *.iml
 *.metadata
 
@@ -165,3 +168,4 @@ app.*.symbols
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
 >>>>>>> ffac6a8361daf2765f4fbb164f2ca66bf27e8cef
+
