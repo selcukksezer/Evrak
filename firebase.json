@@ -1,0 +1,39 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "evrakappfirebaseprojesi",
+          "appId": "1:548336044958:android:2783dad8da09ac8320a48f",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "evrakappfirebaseprojesi",
+          "configurations": {
+            "android": "1:548336044958:android:2783dad8da09ac8320a48f",
+            "ios": "1:548336044958:ios:a58814c3203364a420a48f",
+            "macos": "1:548336044958:ios:a58814c3203364a420a48f",
+            "web": "1:548336044958:web:cf664ab2325f358020a48f",
+            "windows": "1:548336044958:web:a1b1474d9c3ec92520a48f"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "venv",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "runtime": "python313"
+    }
+  ]
+}

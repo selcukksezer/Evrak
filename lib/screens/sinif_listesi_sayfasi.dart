@@ -1,30 +1,32 @@
 // lib/screens/sinif_listesi_sayfasi.dart
 import 'package:flutter/material.dart';
-import 'package:evrakapp/screens/ders_listesi_sayfasi.dart';
+import 'package:provider/provider.dart'; // Provider importu
+
+import 'package:evrakapp/data/evrak_data_provider.dart'; // DataProvider importu
+import 'package:evrakapp/models/veri_modelleri.dart'; // SinifModel için
+import 'package:evrakapp/screens/ders_listesi_sayfasi.dart'; // Ders listesi sayfası
+
+// Alt bar navigasyonu için diğer sayfa importları
 import 'package:evrakapp/screens/ayarlar_sayfasi.dart';
 import 'package:evrakapp/screens/uygulama_bilgileri_sayfasi.dart';
 import 'package:evrakapp/screens/iletisim_sayfasi.dart';
+// AnaSayfa'daki ProfilSayfasi placeholder'ını burada da kullanabiliriz veya ayrı bir dosyaya taşıyabiliriz.
+import 'package:evrakapp/screens/ana_sayfa.dart'; // ProfilSayfasi'nı almak için
 
-// Profil sayfası için geçici bir placeholder
-class ProfilSayfasi extends StatelessWidget {
-  const ProfilSayfasi({super.key});
+class SinifListesiSayfasi extends StatefulWidget {
+  final String kategoriAdi; // Örn: "Kazanımlar"
+
+  const SinifListesiSayfasi({
+    super.key,
+    required this.kategoriAdi,
+  });
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: const Text("Profilim")));
-  }
+  State<SinifListesiSayfasi> createState() => _SinifListesiSayfasiState();
 }
 
-class SinifListesiSayfasi extends StatelessWidget {
-  final String kategoriAdi;
-
-  SinifListesiSayfasi({super.key, required this.kategoriAdi});
-
-  final List<String> siniflar = [
-    'Ana Sınıfı', '1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf',
-    '5. Sınıf', '6. Sınıf', '7. Sınıf', '8. Sınıf',
-    '9. Sınıf', '10. Sınıf', '11. Sınıf', '12. Sınıf',
-  ];
-
+class _SinifListesiSayfasiState extends State<SinifListesiSayfasi> {
+  // Sınıf kutucukları için renk paleti (ana sayfadakine benzer)
   final List<Color> sinifColors = [
     const Color(0xFFE8F0F9), const Color(0xFFE6F6F0), const Color(0xFFFFF8E5),
     const Color(0xFFF9E8E8), const Color(0xFFF0E8F9), const Color(0xFFE8F9F8),
@@ -33,30 +35,39 @@ class SinifListesiSayfasi extends StatelessWidget {
     const Color(0xFFE8F9F1),
   ];
 
-  // Alt bar butonları için navigasyon fonksiyonu
-  void _navigateToPage(BuildContext context, Widget page) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+  // initState içinde veri çekme işlemi EvrakDataProvider'da yapıldığı için
+  // burada ek bir fetch çağrısına gerek yok, Provider'dan dinleyeceğiz.
+  // Eğer bu sayfaya doğrudan gelinirse veya yenileme gerekirse fetch burada tetiklenebilir.
+
+  // Alt bar için navigasyon metodu
+  void _navigateToPageFromBottomBar(Widget page) {
+    // Bu sayfadan alt bar ile başka bir sayfaya gidildiğinde, bu sayfa yığından kalksın
+    // ve ana sayfaya dönüldüğünde alt barın seçimi doğru kalsın diye.
+    Navigator.of(context).popUntil((route) => route.isFirst); // Ana sayfaya kadar tüm sayfaları kapat
+    Navigator.push(context, MaterialPageRoute(builder: (context) => page)); // Yeni sayfayı aç
   }
 
   @override
   Widget build(BuildContext context) {
+    // EvrakDataProvider'ı dinleyerek (listen: true) UI'ın güncellenmesini sağlıyoruz
+    final dataProvider = Provider.of<EvrakDataProvider>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
-      // DEĞİŞİKLİK: Alt menü ve ortadaki buton eklendi
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Ana sayfaya dönmek için popUntil kullanılabilir veya Navigator.pop ile geri gidilebilir
+          // Bu butona tıklandığında ana sayfaya dön
           Navigator.of(context).popUntil((route) => route.isFirst);
         },
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1C1C1E),
+        backgroundColor: Theme.of(context).colorScheme.surface, // Tema rengi
+        foregroundColor: const Color(0xFF1C1C1E), // Koyu renk
         elevation: 4.0,
         shape: const CircleBorder(),
         child: const Icon(Icons.home_filled, size: 30),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
-        color: const Color(0xFF1C1C1E),
+        color: const Color(0xFF1C1C1E), // Koyu tema rengi
         shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
         height: 70,
@@ -66,23 +77,23 @@ class SinifListesiSayfasi extends StatelessWidget {
             IconButton(
               tooltip: 'Uygulama Bilgileri',
               icon: const Icon(Icons.info_outline, color: Colors.grey),
-              onPressed: () => _navigateToPage(context, UygulamaBilgileriSayfasi()),
+              onPressed: () => _navigateToPageFromBottomBar(UygulamaBilgileriSayfasi()),
             ),
             IconButton(
               tooltip: 'İletişim',
               icon: const Icon(Icons.contact_mail_outlined, color: Colors.grey),
-              onPressed: () => _navigateToPage(context, IletisimSayfasi()),
+              onPressed: () => _navigateToPageFromBottomBar(IletisimSayfasi()),
             ),
-            const SizedBox(width: 48), // Ortadaki buton için boşluk
+            const SizedBox(width: 48), // FAB için boşluk
             IconButton(
               tooltip: 'Ayarlar',
               icon: const Icon(Icons.settings_outlined, color: Colors.grey),
-              onPressed: () => _navigateToPage(context, AyarlarSayfasi()),
+              onPressed: () => _navigateToPageFromBottomBar(AyarlarSayfasi()),
             ),
             IconButton(
               tooltip: 'Profil',
               icon: const Icon(Icons.person_outline, color: Colors.grey),
-              onPressed: () => _navigateToPage(context, const ProfilSayfasi()),
+              onPressed: () => _navigateToPageFromBottomBar(const ProfilSayfasi()),
             ),
           ],
         ),
@@ -95,13 +106,13 @@ class SinifListesiSayfasi extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-                _buildHeader(context),
+                _buildHeader(context, widget.kategoriAdi),
                 const SizedBox(height: 20),
-                _buildSearchBar(),
+                _buildSearchBar(context),
                 const SizedBox(height: 30),
-                _buildClassesGrid(context),
-                // Alt barın içeriği ezmemesi için ekstra boşluk
-                const SizedBox(height: 20),
+                // Sınıf listesini gösterme bölümü
+                _buildContent(context, dataProvider),
+                const SizedBox(height: 20), // Alt boşluk
               ],
             ),
           ),
@@ -110,30 +121,37 @@ class SinifListesiSayfasi extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, String pageTitle) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        // Geri butonu
         GestureDetector(
           onTap: () => Navigator.of(context).pop(),
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.surface, // Tema rengi
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.grey.shade300),
             ),
             child: const Icon(Icons.arrow_back_rounded, size: 24),
           ),
         ),
-        Text(
-          kategoriAdi,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        // Sayfa başlığı
+        Expanded(
+          child: Text(
+            pageTitle,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
+        // Bildirim butonu (ana sayfadaki gibi)
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface, // Tema rengi
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.grey.shade300),
           ),
@@ -143,53 +161,88 @@ class SinifListesiSayfasi extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface, // Tema rengi
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade300),
       ),
-      child: const TextField(
+      child: TextField(
         decoration: InputDecoration(
           hintText: 'Sınıf ara...',
-          prefixIcon: Icon(Icons.search),
+          hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+          prefixIcon: Icon(Icons.search, color: Colors.grey.shade700),
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
       ),
     );
   }
 
-  Widget _buildClassesGrid(BuildContext context) {
+  Widget _buildContent(BuildContext context, EvrakDataProvider dataProvider) {
+    if (dataProvider.isLoadingSiniflar) {
+      return const Center(child: Padding(
+        padding: EdgeInsets.all(32.0),
+        child: CircularProgressIndicator(),
+      ));
+    }
+
+    if (dataProvider.errorSiniflar != null) {
+      return Center(child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text('Hata: ${dataProvider.errorSiniflar}'),
+      ));
+    }
+
+    if (dataProvider.siniflar.isEmpty) {
+      return const Center(child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text('Kaydedilmiş sınıf bulunamadı.'),
+      ));
+    }
+
+    // Sınıflar başarıyla çekildiyse GridView'ı göster
+    return _buildClassesGrid(context, dataProvider.siniflar, widget.kategoriAdi);
+  }
+
+  Widget _buildClassesGrid(BuildContext context, List<SinifModel> siniflarListesi, String passedKategoriAdi) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: siniflar.length,
+      itemCount: siniflarListesi.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+        crossAxisCount: 2, // Yan yana 2 sınıf kutucuğu
         crossAxisSpacing: 20,
         mainAxisSpacing: 20,
-        childAspectRatio: 3 / 2,
+        childAspectRatio: 3 / 2.2, // Kutucukların en/boy oranı (biraz daha uzun)
       ),
       itemBuilder: (context, index) {
-        final sinifAdi = siniflar[index];
+        final sinif = siniflarListesi[index]; // Artık SinifModel tipinde
         return GestureDetector(
           onTap: () {
+            print("Seçilen Sınıf: ${sinif.sinifAdi}, ID: ${sinif.id}");
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => DersListesiSayfasi(
-                  kategoriAdi: kategoriAdi,
-                  sinifAdi: sinifAdi,
+                  kategoriAdi: passedKategoriAdi,
+                  sinifModel: sinif, // DersListesiSayfasi'na SinifModel gönderiyoruz
                 ),
               ),
             );
           },
           child: Container(
             decoration: BoxDecoration(
-              color: sinifColors[index % sinifColors.length],
-              borderRadius: BorderRadius.circular(20),
+                color: sinifColors[index % sinifColors.length], // Renkleri sırayla ata
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0,4),
+                  )
+                ]
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -205,15 +258,21 @@ class SinifListesiSayfasi extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const Icon(Icons.class_outlined, size: 28, color: Colors.black87),
+                    // Sınıflar için farklı bir ikon kullanabiliriz
+                    const Icon(Icons.school_outlined, size: 28, color: Colors.black87),
                   ],
                 ),
                 const SizedBox(height: 15),
-                Text(
-                  sinifAdi,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    sinif.sinifAdi,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600, // Tema'dan gelen font ağırlığı
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],

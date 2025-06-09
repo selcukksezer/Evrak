@@ -1,0 +1,11 @@
+firebase_functions~=0.1.0
+# requirements.txt
+firebase-functions
+firebase-admin
+lxml
+
+# Word dosyaları oluşturmak ve işlemek için
+python-docx
+
+# Firebase Storage'a erişim için
+google-cloud-storage

@@ -1,43 +1,68 @@
 name: evrakapp
-description: "A new Flutter project."
-publish_to: 'none'
+description: "Evrak Yönetim Uygulaması"
+publish_to: 'none' # Bu satır, paketin pub.dev'de yayınlanmasını engeller.
 
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.3.0 <4.0.0' # Flutter 3.19 ve sonrası için SDK versiyonu güncellendi.
 
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations: # Eklendi
+    sdk: flutter         # Eklendi
+
+  # Temel UI ikonları
   cupertino_icons: ^1.0.8
-  intl: ^0.18.1
-  provider: ^6.0.5
+
+  # Durum Yönetimi
+  provider: ^6.1.2
+
+  # Tarih ve sayı formatlama gibi uluslararasılaştırma araçları
+  intl: ^0.20.2 # Versiyon güncellendi
+
+  # Listelerle çalışmayı kolaylaştıran yardımcılar
   collection: ^1.18.0
+
+  # URL açma (email, web, telefon)
   url_launcher: ^6.3.0
+
+  # Firebase Entegrasyonu
+  firebase_core: ^3.1.1   # Firebase'i başlatmak için temel paket
+  cloud_firestore: ^5.0.2 # Firestore veritabanı için
+  firebase_storage: 12.4.6 # Güncel versiyonu kontrol edin
+  path_provider: ^2.1.3    # Güncel versiyonu kontrol edin
+  cleartec_docx_template: ^0.4.1     # Güncel versiyonu kontrol edin (veya sizin kullandığınız)
+  open_filex: ^4.4.0        # Güncel versiyonu kontrol edin
+  shared_preferences: ^2.2.3 # Eklendi
+  month_year_picker: 0.5.0+1
+
+  # Google Fonts (Eğer Poppins'i Google Fonts üzerinden dinamik olarak çekmek isterseniz)
+  # google_fonts: ^6.2.1
+  # Şimdilik fontları lokalden ekleyeceğiz, bu yüzden bu satır yorumda kalabilir veya silebilirsiniz.
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
   flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
 
-  # EKSİK OLAN VE HATAYA NEDEN OLAN BÖLÜM BUYDU
-  # Flutter'a fontların bulunduğu klasörü tanıtıyoruz.
+  # Fontları ve diğer asset'leri projenize tanıtmak için
   assets:
-    - assets/fonts/
+    - assets/fonts/ # Font dosyalarının bulunduğu klasörü belirtiyoruz
 
-  # Font ailesini ve dosyalarını tanımlıyoruz.
-  # Not: 'asset' yolunu tam olarak belirtmek daha sağlıklıdır.
   fonts:
     - family: Poppins
       fonts:
         - asset: assets/fonts/Poppins-Regular.ttf
+          weight: 400 # Normal
         - asset: assets/fonts/Poppins-Medium.ttf
-          weight: 500
+          weight: 500 # Orta
         - asset: assets/fonts/Poppins-SemiBold.ttf
-          weight: 600
+          weight: 600 # Yarı-Kalın
         - asset: assets/fonts/Poppins-Bold.ttf
-          weight: 700
+          weight: 700 # Kalın
